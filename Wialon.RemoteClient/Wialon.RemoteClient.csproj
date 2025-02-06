@@ -13,6 +13,8 @@
     <RepositoryUrl>https://github.com/ErickRV/WialonClient.NET</RepositoryUrl>
     <PackageOutputPath>bin\Publish</PackageOutputPath>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageId>WialonClient.NET</PackageId>
+    <Product>WialonClient.NET</Product>
   </PropertyGroup>
 
   <ItemGroup>
