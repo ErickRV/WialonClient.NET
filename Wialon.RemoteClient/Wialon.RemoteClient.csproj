@@ -4,11 +4,27 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <Title>WialonClient.NET</Title>
+    <Version>1.0.0</Version>
+    <Authors>ZeLTicK09</Authors>
+    <Company>DarotTelematics</Company>
+    <Description>Web Client created to simplify the consumption of Gurtam Wialon API in .NET</Description>
+    <PackageProjectUrl>https://github.com/ErickRV/WialonClient.NET</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/ErickRV/WialonClient.NET</RepositoryUrl>
+    <PackageOutputPath>bin\Publish</PackageOutputPath>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="RestSharp" Version="112.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="LICENSE">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
