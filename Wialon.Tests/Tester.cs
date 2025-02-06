@@ -25,7 +25,7 @@ namespace Wialon.Tests
             WialonClient wialonClient = new WialonClient(host, token);
             LogInResult logInResult = await wialonClient.LogIn();
 
-            SearchItemsParams searchItemsParams = SearchParamsFactory.Unit_ByProfileField_Value("LMWDT1G84R1148796", 1);
+            SearchItemsParams searchItemsParams = SearchParamsFactory.Unit_ByProfileField_Value("SOME VALUE", 1);
             SearchItemsResult<Unit_F1> result = await wialonClient.SearchItems<Unit_F1>(searchItemsParams);
         }
     }
