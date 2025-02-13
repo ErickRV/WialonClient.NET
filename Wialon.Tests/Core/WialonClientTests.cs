@@ -209,5 +209,67 @@ namespace Wialon.Tests.Core
 
             mockRequestor.Verify(r => r.PostRequest("core/search_items", It.IsAny<string>()), Times.Once);
         }
+
+        [TestMethod]
+        public async Task SearchItem_Ok() {
+            //Arrange 
+            seedTestingContext();
+            SearchItemResult<Unit_F4194304> searchItemResult = new SearchItemResult<Unit_F4194304>
+            {
+                item = MockDataGenerator.GenUnit_F4194304(),
+                flags = 4194304
+            };
+            RestResponse restResponse = new RestResponse
+            {
+                StatusCode = System.Net.HttpStatusCode.OK,
+                IsSuccessStatusCode = true,
+                Content = JsonConvert.SerializeObject(searchItemResult)
+            };
+
+            mockRequestor.Setup(r => r.PostRequest("core/search_item", It.IsAny<string>()))
+                .Returns(Task.FromResult(restResponse));
+
+            //Act
+            int id = faker.Random.Int(1);
+            SearchItemResult<Unit_F4194304> result = await client.SearchItem<Unit_F4194304>(id, 4194304);
+
+            //Assert
+            Assert.IsTrue(result.Success);
+            Assert.AreEqual(default, result.Error);
+            Assert.IsTrue(TestUtils.AreObjectsEqual(searchItemResult.item, result.item));
+
+            string verificacion = JsonConvert.SerializeObject(new { id = id, flags = 4194304 });
+            mockRequestor.Verify(r => r.PostRequest("core/search_item", It.Is<string>(x => 
+            x.Equals(verificacion))), Times.Once);
+        }
+
+        [TestMethod]
+        public async Task SearchItem_Fails() {
+            //Arrange 
+            seedTestingContext();
+            ErrorDto errorDto = new ErrorDto { error = 1 };
+            RestResponse restResponse = new RestResponse
+            {
+                StatusCode = System.Net.HttpStatusCode.OK,
+                IsSuccessStatusCode = true,
+                Content = JsonConvert.SerializeObject(errorDto)
+            };
+
+            mockRequestor.Setup(r => r.PostRequest("core/search_item", It.IsAny<string>()))
+                .Returns(Task.FromResult(restResponse));
+
+            //Act
+            int id = faker.Random.Int(1);
+            int randFlag = faker.Random.Int(1);
+            SearchItemResult<Unit_F4194304> result = await client.SearchItem<Unit_F4194304>(id, randFlag);
+
+            //Assert
+            Assert.IsFalse(result.Success);
+            Assert.IsTrue(TestUtils.AreObjectsEqual(result.Error, errorDto));
+
+            string verificacion = JsonConvert.SerializeObject(new { id = id, flags = randFlag });
+            mockRequestor.Verify(r => r.PostRequest("core/search_item", It.Is<string>(x =>
+            x.Equals(verificacion))), Times.Once);
+        }
     }
 }

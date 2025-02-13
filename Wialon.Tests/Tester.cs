@@ -9,6 +9,7 @@ using Wialon.RemoteClient.DTOs.LogIn;
 using Wialon.RemoteClient.Models.Units;
 using Wialon.RemoteClient.Objects;
 using Wialon.RemoteClient.Services;
+using Wialon.Tests.Utils;
 
 namespace Wialon.Tests
 {
@@ -25,8 +26,7 @@ namespace Wialon.Tests
             WialonClient wialonClient = new WialonClient(host, token);
             LogInResult logInResult = await wialonClient.LogIn();
 
-            SearchItemsParams searchItemsParams = SearchParamsFactory.Unit_ByProfileField_Value("SOME VALUE", 1);
-            SearchItemsResult<Unit_F1> result = await wialonClient.SearchItems<Unit_F1>(searchItemsParams);
+            SearchItemResult<Unit_F4194304> unit = await wialonClient.SearchItem<Unit_F4194304>(401655754, 4194304);
         }
     }
 }

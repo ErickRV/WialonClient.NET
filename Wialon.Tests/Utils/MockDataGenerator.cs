@@ -21,5 +21,11 @@ namespace Wialon.Tests.Utils
 
             return unit.Generate();
         }
+
+        public static Unit_F4194304 GenUnit_F4194304()
+        {
+            Faker<Unit_F4194304> unit = new AutoFaker<Unit_F4194304>();
+            return unit.Generate();
+        }
     }
 }

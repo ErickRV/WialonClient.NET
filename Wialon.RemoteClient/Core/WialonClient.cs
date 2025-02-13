@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Wialon.RemoteClient.DTOs.Error;
 using Wialon.RemoteClient.DTOs.LogIn;
+using Wialon.RemoteClient.Models.Units;
 using Wialon.RemoteClient.Objects;
 using Wialon.RemoteClient.Services;
 using Wialon.RemoteClient.Services.Interfaces;
@@ -42,6 +43,19 @@ namespace Wialon.RemoteClient.Core
             requestor.AddAuth(logInResponse.eid);
 
             return new LogInResult { Success = true, eid = logInResponse.eid};
+        }
+
+        public async Task<SearchItemResult<T>> SearchItem<T>(Int64 id, Int64 flags)
+        {
+            string dto = JsonConvert.SerializeObject(new  { id, flags });
+            RestResponse restResponse = await requestor.PostRequest("core/search_item", dto);
+            if (restResponse.Content.Contains("\"error\":"))
+            {
+                ErrorDto errorDto = JsonConvert.DeserializeObject<ErrorDto>(restResponse.Content);
+                return new SearchItemResult<T> { Success = false, Error = errorDto };
+            }
+
+            return JsonConvert.DeserializeObject<SearchItemResult<T>>(restResponse.Content);
         }
 
         public async Task<SearchItemsResult<T>> SearchItems<T>(SearchItemsParams searchParams) {
