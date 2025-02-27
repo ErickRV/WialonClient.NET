@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Wialon.RemoteClient.Core;
+using Wialon.RemoteClient.Core.Interfaces;
 using Wialon.RemoteClient.DTOs.Error;
 using Wialon.RemoteClient.DTOs.LogIn;
 using Wialon.RemoteClient.Models.Units;
@@ -25,7 +26,7 @@ namespace Wialon.Tests.Core
         Faker faker = new Faker();
 
         Mock<IRequestor> mockRequestor = new Mock<IRequestor>();
-        WialonClient client;
+        IWialonClient client;
 
         private void seedTestingContext() {
             string token = Guid.NewGuid().ToString();
@@ -88,7 +89,7 @@ namespace Wialon.Tests.Core
             Assert.AreEqual("No Error Description", result.errorMsg);
 
             mockRequestor.Verify(r => r.PostRequest("token/login", It.Is<string>(x => 
-            x.Equals(JsonConvert.SerializeObject(new PostLogInDto { token = client.TOKEN })))), Times.Once);
+            x.Equals(JsonConvert.SerializeObject(new PostLogInDto { token = ((WialonClient)client).TOKEN })))), Times.Once);
 
             mockRequestor.Verify(r => r.AddAuth(It.Is<string>(x => x.Equals(logInResponse.eid))), Times.Once);
         }

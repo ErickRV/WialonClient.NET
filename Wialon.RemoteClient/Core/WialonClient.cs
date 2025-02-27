@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Wialon.RemoteClient.Core.Interfaces;
 using Wialon.RemoteClient.DTOs.Error;
 using Wialon.RemoteClient.DTOs.LogIn;
 using Wialon.RemoteClient.Models.Units;
@@ -14,7 +15,7 @@ using Wialon.RemoteClient.Services.Interfaces;
 
 namespace Wialon.RemoteClient.Core
 {
-    public class WialonClient
+    public class WialonClient : IWialonClient
     {
         public readonly string HOST;
         public readonly string TOKEN;
