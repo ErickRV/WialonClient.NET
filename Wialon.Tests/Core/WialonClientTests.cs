@@ -272,5 +272,45 @@ namespace Wialon.Tests.Core
             mockRequestor.Verify(r => r.PostRequest("core/search_item", It.Is<string>(x =>
             x.Equals(verificacion))), Times.Once);
         }
+
+        [TestMethod]
+        public async Task RawRequest_Ok()
+        {
+            //Arrange 
+            seedTestingContext();
+            string endpoint = faker.Internet.Url();
+            object parameters = new
+            {
+                id = 09379,
+                test = "Test",
+                faker = faker.Random.Hash()
+            };
+
+            object operationResult = new
+            {
+                success = true,
+                message = "Success or error or something",
+                data = new { some =  "data" }
+            };
+            RestResponse restResponse = new RestResponse
+            {
+                StatusCode = System.Net.HttpStatusCode.OK,
+                IsSuccessStatusCode = true,
+                Content = JsonConvert.SerializeObject(operationResult)
+            };
+
+            mockRequestor.Setup(x => x.PostRequest(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(Task.FromResult(restResponse));
+
+            //Act
+            object result = await client.RawRequest(endpoint, parameters);
+
+            //Assert
+            Assert.IsTrue(TestUtils.AreObjectsEqual(operationResult, result));
+
+            mockRequestor.Verify(x => x.PostRequest(endpoint, It.Is<string>(x => 
+            x.Equals(JsonConvert.SerializeObject(parameters)))), Times.Once);
+
+        }
     }
 }

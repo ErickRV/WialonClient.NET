@@ -59,6 +59,13 @@ namespace Wialon.RemoteClient.Core
             return JsonConvert.DeserializeObject<SearchItemResult<T>>(restResponse.Content);
         }
 
+        /// <summary>
+        /// Wialon Search result will always return a list of results so when setting the type of the result
+        /// consider it will already deserialize as a list of that type
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="searchParams"></param>
+        /// <returns></returns>
         public async Task<SearchItemsResult<T>> SearchItems<T>(SearchItemsParams searchParams) {
             RestResponse restResponse = await requestor.PostRequest("core/search_items", JsonConvert.SerializeObject(searchParams));
             if (restResponse.Content.Contains("\"error\":")) {
@@ -67,5 +74,21 @@ namespace Wialon.RemoteClient.Core
             }
                 return JsonConvert.DeserializeObject<SearchItemsResult<T>>(restResponse.Content);
         }
+
+
+
+        /// <summary>
+        /// This method can be used to send any request using this authenticated wialon client
+        /// </summary>
+        /// <param name="endpoint">this route will be used in the svc part of the request</param>
+        /// <param name="parameters">parameters will be serialized and used in the params part of the request </param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task<object> RawRequest(string endpoint, object parameters)
+        {
+            RestResponse restResponse = await requestor.PostRequest(endpoint, JsonConvert.SerializeObject(parameters));
+            return JsonConvert.DeserializeObject<object>(restResponse.Content);
+        }
     }
+
 }

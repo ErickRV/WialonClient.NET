@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Title>WialonClient.NET</Title>
-    <Version>1.0.2</Version>
+    <Version>1.0.3</Version>
     <Authors>ZeLTicK09</Authors>
     <Company>DarotTelematics</Company>
     <Description>Web Client created to simplify the consumption of Gurtam Wialon API in .NET</Description>

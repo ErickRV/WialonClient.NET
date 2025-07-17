@@ -12,5 +12,7 @@ namespace Wialon.RemoteClient.Core.Interfaces
         public Task<LogInResult> LogIn();
         public Task<SearchItemResult<T>> SearchItem<T>(Int64 id, Int64 flags);
         public Task<SearchItemsResult<T>> SearchItems<T>(SearchItemsParams searchParams);
+
+        public Task<object> RawRequest(string svc, object parameters);
     }
 }
