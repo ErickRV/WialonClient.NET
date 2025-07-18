@@ -12,6 +12,6 @@ namespace Wialon.RemoteClient.Models.Geofence
         /// <summary>
         /// the key in the dictionary is the GeoFence Id
         /// </summary>
-        public Dictionary<string,GeoFence> zl { get; set; }
+        public Dictionary<string, GeoFence> zl { get; set; } = new Dictionary<string, GeoFence>();
     }
 }

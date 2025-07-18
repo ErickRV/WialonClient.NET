@@ -12,7 +12,9 @@ using System.Threading.Tasks;
 using Wialon.RemoteClient.Core;
 using Wialon.RemoteClient.Core.Interfaces;
 using Wialon.RemoteClient.DTOs.Error;
+using Wialon.RemoteClient.DTOs.Geofence;
 using Wialon.RemoteClient.DTOs.LogIn;
+using Wialon.RemoteClient.Models.Geofence;
 using Wialon.RemoteClient.Models.Units;
 using Wialon.RemoteClient.Objects;
 using Wialon.RemoteClient.Services.Interfaces;
@@ -303,14 +305,92 @@ namespace Wialon.Tests.Core
                 .Returns(Task.FromResult(restResponse));
 
             //Act
-            object result = await client.RawRequest(endpoint, parameters);
+            string result = await client.RawRequest(endpoint, parameters);
 
             //Assert
-            Assert.IsTrue(TestUtils.AreObjectsEqual(operationResult, result));
+            Assert.AreEqual(JsonConvert.SerializeObject(operationResult), result);
 
             mockRequestor.Verify(x => x.PostRequest(endpoint, It.Is<string>(x => 
             x.Equals(JsonConvert.SerializeObject(parameters)))), Times.Once);
 
+        }
+
+        [TestMethod]
+        public async Task GeofencesByPoint() {
+            //Arrange 
+            seedTestingContext();
+            double latitude = faker.Random.Double();
+            double longitude = faker.Random.Double();
+
+            GeoFence geoF1 = MockDataGenerator.GenGeoFence();
+            GeoFence geoF2 = MockDataGenerator.GenGeoFence();
+            GeoFence geoF3 = MockDataGenerator.GenGeoFence();
+
+            GeoFenceGroup geoFenceGroup = new GeoFenceGroup();
+            geoFenceGroup.zl.Add(geoF1.id.ToString(), geoF1);
+            geoFenceGroup.zl.Add(geoF2.id.ToString(), geoF2);
+            geoFenceGroup.zl.Add(geoF3.id.ToString(), geoF3);
+
+            int randSelect = new Random().Next(0, 2);
+            RestResponse restResponse = new RestResponse
+            {
+                StatusCode = System.Net.HttpStatusCode.OK,
+                IsSuccessStatusCode = true,
+                Content = JsonConvert.SerializeObject(new Dictionary<string, long[]> {
+                    {geoFenceGroup.id.ToString(), [ geoFenceGroup.zl.ElementAt(randSelect).Value.id ] }
+                })
+            };
+
+            mockRequestor.Setup(x => x.PostRequest(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(Task.FromResult(restResponse));
+
+            //Act
+            Dictionary<string, long[]> result = await client.GeofencesByPoint(latitude, longitude, geoFenceGroup);
+
+            //Assert
+            GeoFByPointRequest assertDto = new GeoFByPointRequest
+            {
+                spec = new GeoFByPointSpec { 
+                    lat = latitude,
+                    lon = longitude,
+                    radius = 0,
+                    zoneId = new Dictionary<string, long[]> { 
+                        { geoFenceGroup.id.ToString(), geoFenceGroup.zl.Select(x => x.Value.id).ToArray() } 
+                    }
+                }
+            };
+            Assert.IsTrue(result.Count == 1);
+            Assert.AreEqual(geoFenceGroup.id.ToString(), result.First().Key);
+
+            Assert.IsTrue(result.First().Value.Length == 1);
+            Assert.AreEqual(result.First().Value[0], geoFenceGroup.zl.ElementAt(randSelect).Value.id);
+
+            mockRequestor.Verify(x => x.PostRequest("resource/get_zones_by_point", It.Is<string>(x => 
+            x.Equals(JsonConvert.SerializeObject(assertDto)))), Times.Once);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ApplicationException))]
+        public async Task GeofencesByPoint_Fails() {
+            //Arrange 
+            seedTestingContext();
+            ErrorDto errorDto = new ErrorDto { error = 1 };
+            RestResponse restResponse = new RestResponse
+            {
+                StatusCode = System.Net.HttpStatusCode.OK,
+                IsSuccessStatusCode = true,
+                Content = JsonConvert.SerializeObject(errorDto)
+            };
+
+            mockRequestor.Setup(r => r.PostRequest("resource/get_zones_by_point", It.IsAny<string>()))
+                .Returns(Task.FromResult(restResponse));
+
+            //Act
+            GeoFenceGroup geoFenceGroup = new GeoFenceGroup();
+            GeoFence geoF1 = MockDataGenerator.GenGeoFence();
+            geoFenceGroup.zl.Add(geoF1.id.ToString(), geoF1);
+
+            Dictionary<string, long[]> result = await client.GeofencesByPoint(faker.Random.Double(), faker.Random.Double(), geoFenceGroup);
         }
     }
 }

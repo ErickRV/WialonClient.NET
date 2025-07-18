@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Wialon.RemoteClient.Core;
 using Wialon.RemoteClient.DTOs.LogIn;
 using Wialon.RemoteClient.Models.Geofence;
+using Wialon.RemoteClient.Models.UnitGroups;
 using Wialon.RemoteClient.Models.Units;
 using Wialon.RemoteClient.Objects;
 using Wialon.RemoteClient.Services;
@@ -17,7 +18,7 @@ namespace Wialon.Tests
     [TestClass]
     public class Tester
     {
-        [TestMethod]
+        //[TestMethod]
         public async Task RunTest() {
 
             string[] config = File.ReadAllText("../../../conf.txt").Split('@');
@@ -27,43 +28,20 @@ namespace Wialon.Tests
             WialonClient wialonClient = new WialonClient(host, token);
             LogInResult logInResult = await wialonClient.LogIn();
 
-            //SearchItemsParams allgroups = SearchParamsFactory.AllUnitGroups(1);
-            //SearchItemsResult<object> resultGroups = await wialonClient.SearchItems<object>(allgroups);
-            //string groups = JsonConvert.SerializeObject(resultGroups.items);
+            SearchItemsParams allgroups = SearchParamsFactory.AllUnitGroups(1);
+            SearchItemsResult<UnitGroup> resultGroups = await wialonClient.SearchItems<UnitGroup>(allgroups);
+            List<UnitGroup> unitGroupSectors = resultGroups.items.Where(x => x.nm.Contains("Sector")).ToList();
 
 
-            //SearchItemsParams allZones = SearchParamsFactory.AllZones(0x00001001);
-            SearchItemsParams allZones = SearchParamsFactory.AllZones();
-            var result = await wialonClient.SearchItems<GeoFenceGroup>(allZones);
+            SearchItemsParams searchAllZones = SearchParamsFactory.AllZones();
+            var result = await wialonClient.SearchItems<GeoFenceGroup>(searchAllZones);
             GeoFenceGroup geoFenceGroup = result.items.First();
 
-            List<GeoFence> geoFences = geoFenceGroup.zl.Where(x => x.Value.n.Contains("SECTOR")).Select(x => x.Value).ToList();
-            long[] GeoFenceIds = geoFences.Select(x => x.id).ToArray();
+            Dictionary<string, GeoFence> geoFences = geoFenceGroup.zl.Where(x => x.Value.n.Contains("SECTOR")).ToDictionary();
+            geoFenceGroup.zl = geoFences;
 
-            Dictionary<string, long[]> resurceGeoFences = new Dictionary<string, long[]>
-            {
-                { geoFenceGroup.id.ToString(), GeoFenceIds }
-            };
-            object x = new
-            {
-                spec = new pointSearch
-                {
-                    lat = 31.861007,
-                    lon = -116.623453,
-                    radius = 0,
-                    zoneId = resurceGeoFences
-                }
-            };
-            object zbypoint = await wialonClient.RawRequest("resource/get_zones_by_point", x);
-            string test = JsonConvert.SerializeObject(zbypoint);
-            
+            Dictionary<string, long[]> pointInGeoF = await wialonClient.GeofencesByPoint(20.986225, -101.479373, geoFenceGroup);
+            var x = 3;
         }
-    }
-
-    public class pointSearch {
-        public double lat { get; set; }
-        public double lon { get; set; }
-        public double radius { get; set; }
-        public Dictionary<string, long[]> zoneId { get; set; }
     }
 }

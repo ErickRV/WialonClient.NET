@@ -7,7 +7,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Wialon.RemoteClient.Core.Interfaces;
 using Wialon.RemoteClient.DTOs.Error;
+using Wialon.RemoteClient.DTOs.Geofence;
 using Wialon.RemoteClient.DTOs.LogIn;
+using Wialon.RemoteClient.Models.Geofence;
 using Wialon.RemoteClient.Models.Units;
 using Wialon.RemoteClient.Objects;
 using Wialon.RemoteClient.Services;
@@ -75,6 +77,27 @@ namespace Wialon.RemoteClient.Core
                 return JsonConvert.DeserializeObject<SearchItemsResult<T>>(restResponse.Content);
         }
 
+        public async Task<Dictionary<string, long[]>> GeofencesByPoint(double laitude, double longitude, GeoFenceGroup geoFenceGroup)
+        {
+            GeoFByPointRequest GeoByPReq = new GeoFByPointRequest
+            {
+                spec = new GeoFByPointSpec { 
+                    lat = laitude,
+                    lon = longitude,
+                    radius = 0,
+                    zoneId = new Dictionary<string, long[]> {
+                        { geoFenceGroup.id.ToString(), geoFenceGroup.zl.Select(x => x.Value.id).ToArray() }
+                    }
+                }
+            };
+            
+            RestResponse restResponse = await requestor.PostRequest("resource/get_zones_by_point", JsonConvert.SerializeObject(GeoByPReq));
+            if (restResponse.Content.Contains("\"error\":"))
+                throw new ApplicationException("Api returned error!", new Exception(restResponse.Content));
+
+            return JsonConvert.DeserializeObject<Dictionary<string, long[]>>(restResponse.Content);
+        }
+
 
 
         /// <summary>
@@ -82,12 +105,12 @@ namespace Wialon.RemoteClient.Core
         /// </summary>
         /// <param name="endpoint">this route will be used in the svc part of the request</param>
         /// <param name="parameters">parameters will be serialized and used in the params part of the request </param>
-        /// <returns></returns>
+        /// <returns>Returns the content of the server response as a string</returns>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task<object> RawRequest(string endpoint, object parameters)
+        public async Task<string> RawRequest(string endpoint, object parameters)
         {
             RestResponse restResponse = await requestor.PostRequest(endpoint, JsonConvert.SerializeObject(parameters));
-            return JsonConvert.DeserializeObject<object>(restResponse.Content);
+            return restResponse.Content;
         }
     }
 

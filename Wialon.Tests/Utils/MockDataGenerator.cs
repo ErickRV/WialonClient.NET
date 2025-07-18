@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Wialon.RemoteClient.Models.Geofence;
 using Wialon.RemoteClient.Models.Units;
 
 namespace Wialon.Tests.Utils
@@ -26,6 +27,11 @@ namespace Wialon.Tests.Utils
         {
             Faker<Unit_F4194304> unit = new AutoFaker<Unit_F4194304>();
             return unit.Generate();
+        }
+
+        public static GeoFence GenGeoFence() {
+            Faker<GeoFence> geofence = new AutoFaker<GeoFence>();
+            return geofence.Generate();
         }
     }
 }
